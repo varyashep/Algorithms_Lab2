@@ -4,44 +4,39 @@ import java.util.ArrayList;
 
 public class RLE {
 
-    public static ArrayList<Integer> getRle(ArrayList<Integer> zigzag) {
-        ArrayList<Integer> rle = new ArrayList<>();
+
+    public static String getRleString(ArrayList<Integer> zigzag) {
+        StringBuilder rle = new StringBuilder();
         int count = 1;
 
         for (int i = 1; i < zigzag.size(); i++) {
             if (zigzag.get(i) == zigzag.get(i-1)) {
                 count++;
             } else {
-                rle.add(zigzag.get(i-1));
-                rle.add(count);
+                rle.append(zigzag.get(i-1)).append(' ').append(count).append(' ');
                 count = 1;
             }
         }
 
-        rle.add(zigzag.get(zigzag.size() - 1));
-        rle.add(count);
+        rle.append(zigzag.get(zigzag.size() - 1)).append(' ').append(count);
 
-        return rle;
+        return rle.toString();
     }
 
-    public static int[] getBackRle(ArrayList<Integer> rle) {
-        int size = 0;
-        for (int i = 0; i < rle.size(); i += 2) {
-            size += rle.get(i + 1);
-        }
+    public static ArrayList<Integer> getBackRleString(String rleString) {
+        ArrayList<Integer> rle = new ArrayList<>();
+        String[] tokens = rleString.split(" ");
 
-        int[] zigzag = new int[size];
-        int index = 0;
+        for (int i = 0; i < tokens.length; i += 2) {
+            int value = Integer.parseInt(tokens[i]);
+            int count = Integer.parseInt(tokens[i + 1]);
 
-        for (int i = 0; i < rle.size(); i += 2) {
-            int num = rle.get(i);
-            int count = rle.get(i + 1);
             for (int j = 0; j < count; j++) {
-                zigzag[index++] = num;
+                rle.add(value);
             }
         }
 
-        return zigzag;
+        return rle;
     }
 
 }

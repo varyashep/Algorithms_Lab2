@@ -61,9 +61,6 @@ public class ColorConversion {
                 int r = (int) Math.min(Math.max(0, Math.round(Y + 1.402 * (Cr - 128))), 255);
                 int g = (int) Math.min(Math.max(0, Math.round(Y - 0.34414 * (Cb - 128) - 0.71414 * (Cr - 128))), 255);
                 int b = (int) Math.min(Math.max(0, Math.round(Y + 1.772 * (Cb - 128))), 255);
-//                int r = (int) (Y + 1.402 * (Cr - 128));
-//                int g = (int) (Y - 0.34414 * (Cb - 128) - 0.71414 * (Cr - 128));
-//                int b = (int) (Y + 1.772 * (Cb - 128));
 
                 rgb[x][y][0] = r;
                 rgb[x][y][1] = g;

@@ -1,30 +1,23 @@
 package org.example;
 
-import java.awt.*;
-import java.awt.image.SampleModel;
 import java.io.*;
-import java.nio.Buffer;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        Path path = Paths.get("cat.jpg");
+        Path path = Paths.get("random.jpg");
         File file1 = new File("C:/Users/user/Documents/ETU/ETUsem4/Algorithms/Lab2/untitled/initial.txt");
-        File initImage = new File("C:/Users/user/Documents/ETU/ETUsem4/Algorithms/Lab2/untitled/cat.jpg");
-        float initImageSize = initImage.length();
-        System.out.println(initImageSize);
         Path outputPath = Paths.get("C:/Users/user/Documents/image.jpg");
         File file2 = new File("C:/Users/user/Documents/ETU/ETUsem4/Algorithms/Lab2/untitled/transform.txt");
 
 
         int[][][] rgb = ColorConversion.getRGB(String.valueOf(path));
         Save.write3DArrayToFile(rgb, "initial.txt");
+        float initSize = file1.length();
         System.out.println("Initial size (bits): " + file1.length()*8);
-        float initSize = file1.length()*8;
         int[][][] YCbCr = ColorConversion.getYCbCr(String.valueOf(path), rgb);
         Save.write3DArrayToFile(YCbCr, "transform.txt");
         System.out.println("Size after YCbCr (bits): " + file2.length()*8);
@@ -104,56 +97,38 @@ public class Main {
         FileOutputStream fos = new FileOutputStream("transform.txt");
         DataOutputStream dos = new DataOutputStream(fos);
         ArrayList<Integer> Y_zigzag = Matrix.zigZag(Y_Q);
-        ArrayList<Integer> Y_RLE = RLE.getRle(Y_zigzag);
-
-        for (Integer value: Y_RLE) {
-            dos.writeInt(value);
-        }
+        String Y_RLE = RLE.getRleString(Y_zigzag);
+        dos.writeBytes(Y_RLE);
 
         ArrayList<Integer> Cb_zigzag = Matrix.zigZag(Cb_Q);
-        ArrayList<Integer> Cb_RLE = RLE.getRle(Cb_zigzag);
-
-        for (Integer value: Cb_RLE) {
-            dos.writeInt(value);
-        }
+        String Cb_RLE = RLE.getRleString(Cb_zigzag);
+        dos.writeBytes(Cb_RLE);
 
         ArrayList<Integer> Cr_zigzag = Matrix.zigZag(Cr_Q);
-        ArrayList<Integer> Cr_RLE = RLE.getRle(Cr_zigzag);
-
-        for (Integer value: Cr_RLE) {
-            dos.writeInt(value);
-        }
+        String Cr_RLE = RLE.getRleString(Cr_zigzag);
+        dos.writeBytes(Cr_RLE);
 
         dos.close();
 
 
+
         System.out.println("Size after RLE (bits): " + file2.length()*8);
+        float finalSize = file2.length();
+        System.out.println("k: " + initSize/finalSize);
 
-        int[] Y_backRLE = RLE.getBackRle(Y_RLE);
-        ArrayList<Integer> Y_afterRLE = new ArrayList<>();
-        for (int i = 0; i < Y_backRLE.length; i++) {
-            Y_afterRLE.add(Y_backRLE[i]);
-        }
+        ArrayList<Integer> Y_backRLE = RLE.getBackRleString(Y_RLE);
+        ArrayList<Integer> Cb_backRLE = RLE.getBackRleString(Cb_RLE);
+        ArrayList<Integer> Cr_backRLE = RLE.getBackRleString(Cr_RLE);
 
-        int[] Cb_backRLE = RLE.getBackRle(Cb_RLE);
-        ArrayList<Integer> Cb_afterRLE = new ArrayList<>();
-        for (int i = 0; i < Cb_backRLE.length; i++) {
-            Cb_afterRLE.add(Cb_backRLE[i]);
-        }
+        int[][] Y_invZigZag = Matrix.inverseZigZag(Y_backRLE, Y_Q.length, Y_Q[0].length);
+        int[][] Cb_invZigZag = Matrix.inverseZigZag(Cb_backRLE, Cb_Q.length, Cb_Q[0].length);
+        int[][] Cr_invZigZag = Matrix.inverseZigZag(Cr_backRLE, Cr_Q.length, Cr_Q[0].length);
 
-        int[] Cr_backRLE = RLE.getBackRle(Cr_RLE);
-        ArrayList<Integer> Cr_afterRLE = new ArrayList<>();
-        for (int i = 0; i < Cr_backRLE.length; i++) {
-            Cr_afterRLE.add(Cr_backRLE[i]);
-        }
 
-        int[][] Y_invZigZag = Matrix.inverseZigZag(Y_afterRLE);
-        int[][] Cb_invZigZag = Matrix.inverseZigZag(Cb_afterRLE);
-        int[][] Cr_invZigZag = Matrix.inverseZigZag(Cr_afterRLE);
 
-        List<int[][]> dq_blocksY = BlockArray.divideIntoBlocks(Y_Q);
-        List<int[][]> dq_blocksCb = BlockArray.divideIntoBlocks(Cb_Q);
-        List<int[][]> dq_blocksCr = BlockArray.divideIntoBlocks(Cr_Q);
+        List<int[][]> dq_blocksY = BlockArray.divideIntoBlocks(Y_invZigZag);
+        List<int[][]> dq_blocksCb = BlockArray.divideIntoBlocks(Cb_invZigZag);
+        List<int[][]> dq_blocksCr = BlockArray.divideIntoBlocks(Cr_invZigZag);
         List<float[][]> dequantization_Y = new ArrayList<>();
         List<float[][]> dequantization_Cb = new ArrayList<>();
         List<float[][]> dequantization_Cr = new ArrayList<>();
@@ -213,8 +188,5 @@ public class Main {
 
         ColorConversion.convertToImage(iRGB, String.valueOf(outputPath));
 
-        File finalImage = new File("C:/Users/user/Documents/image.jpg");
-        float finalImageSize = finalImage.length();
-        System.out.println("k: " + initImageSize/finalImageSize);
     }
 }

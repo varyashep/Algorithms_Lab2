@@ -50,7 +50,6 @@ public class DCT {
     }
 
     public static int[][] generateQuantizationMatrix(int Q) {
-
         int[][] standardQuantizationMatrix = {
                 {16, 11, 10, 16, 24, 40, 51, 61},
                 {12, 12, 14, 19, 26, 58, 60, 55},
@@ -64,15 +63,17 @@ public class DCT {
 
         int scaleFactor;
         if (Q > 50) {
-            scaleFactor = 200 - 2*Q;
+            scaleFactor = 200 - 2 * Q;
         } else {
             scaleFactor = 5000 / Q;
         }
+
 
         int[][] quantizationMatrix = new int[8][8];
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 quantizationMatrix[i][j] = (standardQuantizationMatrix[i][j] * scaleFactor + 50) / 100;
+                quantizationMatrix[i][j] = Math.max(1, Math.min(256, quantizationMatrix[i][j]));  // Ограничение значений от 1 до 256
             }
         }
 

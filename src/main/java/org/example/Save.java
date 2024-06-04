@@ -98,15 +98,4 @@ public class Save {
         }
     }
 
-    public static long getImageSizeInBits(String imagePath) throws IOException {
-        File imageFile = new File(imagePath);
-        BufferedImage image = ImageIO.read(imageFile);
-
-        int width = image.getWidth();
-        int height = image.getHeight();
-        int bitDepth = image.getColorModel().hasAlpha() ? 32 : 24; // Если есть альфа-канал, то 32 бита на пиксель, иначе 24
-
-        long sizeInBits = (long) width * height * bitDepth;
-        return sizeInBits;
-    }
 }
